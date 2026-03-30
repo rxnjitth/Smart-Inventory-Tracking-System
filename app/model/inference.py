@@ -205,3 +205,6 @@ def generate_video_stream(source=0):
         )
 
     cap.release()
+
+from fastapi.middleware.cors import CORSMiddleware
+

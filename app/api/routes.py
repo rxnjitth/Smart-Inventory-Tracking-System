@@ -84,7 +84,6 @@ async def detect_image(file: UploadFile = File(...)):
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-router = APIRouter()
 
 @router.get("/detect/video")
 def video_stream():
@@ -92,3 +91,4 @@ def video_stream():
         generate_video_stream(0),  # webcam or RTSP URL
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
+
