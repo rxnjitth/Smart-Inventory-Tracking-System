@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YOLO Vision Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        header {
+            padding: 20px;
+            background: #020617;
+            border-bottom: 1px solid #1e293b;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .panel {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .panel h2 {
+            color: #38bdf8;
+        }
+
+        .card {
+            background: #020617;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        input {
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #38bdf8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0ea5e9;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        pre {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+
+        .metric {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #94a3b8;
+        }
+
+        .status {
+            color: #22c55e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    🚀 YOLOv8 Vision Dashboard
+</header>
+
+<div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="panel">
+
+        <div class="card">
+            <h2>📸 Image Detection</h2>
+
+            <input type="file" id="fileInput">
+            <br>
+            <button onclick="detectImage()">Run Detection</button>
+
+            <div class="metric">Status: <span id="status">Idle</span></div>
+            <div class="metric">Latency: <span id="latency">-</span> ms</div>
+
+            <img id="outputImage">
+
+        </div>
+
+        <div class="card">
+            <h2>📊 Detection JSON</h2>
+            <pre id="jsonOutput">No data yet...</pre>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+
+        <div class="card">
+            <h2>🎥 Live Stream</h2>
+            <img src="http://localhost:8000/v1/detect/video">
+            <div class="metric">Real-time inference stream</div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+async function detectImage() {
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an image");
+        return;
+    }
+
+    document.getElementById("status").textContent = "Processing...";
+    const start = performance.now();
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        // IMAGE RESULT
+        const imageResponse = await fetch("http://localhost:8000/v1/detect/image", {
+            method: "POST",
+            body: formData
+        });
+
+        const imageBlob = await imageResponse.blob();
+        document.getElementById("outputImage").src =
+            URL.createObjectURL(imageBlob);
+
+        // JSON RESULT
+        const jsonResponse = await fetch("http://localhost:8000/v1/detect", {
+            method: "POST",
+            body: formData
+        });
+
+        const jsonData = await jsonResponse.json();
+
+        document.getElementById("jsonOutput").textContent =
+            JSON.stringify(jsonData, null, 2);
+
+        const latency = performance.now() - start;
+        document.getElementById("latency").textContent = latency.toFixed(1);
+        document.getElementById("status").textContent = "Completed";
+
+    } catch (err) {
+        document.getElementById("status").textContent = "Error";
+        console.error(err);
+    }
+}
+</script>
+
+</body>
+</html>
