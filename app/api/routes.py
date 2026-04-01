@@ -81,14 +81,5 @@ async def detect_image(file: UploadFile = File(...)):
         headers={"X-Latency": str(latency)}
     )
 
-from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
 
-
-@router.get("/detect/video")
-def video_stream():
-    return StreamingResponse(
-        generate_video_stream(0),  # webcam or RTSP URL
-        media_type="multipart/x-mixed-replace; boundary=frame"
-    )
 
