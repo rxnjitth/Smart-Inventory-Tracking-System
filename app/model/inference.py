@@ -161,50 +161,5 @@ def annotate_frame(image_np: np.ndarray, results) -> np.ndarray:
 
     return image_np
 
-def generate_video_stream(source=0):
-    cap = cv2.VideoCapture(source)
 
-    if not cap.isOpened():
-        raise RuntimeError("Could not open video source")
-
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
-
-        start = time.time()
-
-        # 🔥 Use SAME inference pipeline
-        results = _predict(frame)
-
-        # 🔥 Reuse annotation
-        annotated = annotate_frame(frame, results)
-
-        latency = time.time() - start
-
-        # Optional: overlay latency
-        cv2.putText(
-            annotated,
-            f"{latency*1000:.1f} ms",
-            (10, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (0, 255, 0),
-            2
-        )
-
-        # 🔥 CRITICAL: Ensure BGR format (OpenCV default is already BGR)
-        ret, buffer = cv2.imencode(".jpg", annotated)
-        frame_bytes = buffer.tobytes()
-
-        yield (
-            b"--frame\r\n"
-            b"Content-Type: image/jpeg\r\n\r\n" +
-            frame_bytes +
-            b"\r\n"
-        )
-
-    cap.release()
-
-from fastapi.middleware.cors import CORSMiddleware
 
