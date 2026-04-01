@@ -1,90 +1,305 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>YOLO Vision Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Inventory Tracking - YOLOv8 Detection</title>
 
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #0f172a;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
             color: #e2e8f0;
+            min-height: 100vh;
         }
 
         header {
-            padding: 20px;
-            background: #020617;
-            border-bottom: 1px solid #1e293b;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #38bdf8;
+            background: linear-gradient(135deg, #020617 0%, #0f1729 100%);
+            border-bottom: 1px solid rgba(94, 234, 212, 0.2);
+            padding: 28px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5eead4 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            color: #cbd5e1;
+            font-weight: 500;
         }
 
         .container {
-            display: flex;
-            height: calc(100vh - 70px);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
         }
 
-        .panel {
-            flex: 1;
-            padding: 20px;
-            overflow: auto;
-        }
-
-        .panel h2 {
-            color: #38bdf8;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
         }
 
         .card {
-            background: #020617;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #0f1729 0%, #1a2547 100%);
+            border: 1px solid rgba(94, 234, 212, 0.15);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        input {
-            margin-top: 10px;
+        .card:hover {
+            border-color: rgba(94, 234, 212, 0.3);
+            box-shadow: 0 12px 48px rgba(94, 234, 212, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(94, 234, 212, 0.1);
+        }
+
+        .card-icon {
+            font-size: 28px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #5eead4;
+            margin: 0;
+        }
+
+        .upload-section {
+            margin-bottom: 24px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 16px;
+            background: rgba(94, 234, 212, 0.05);
+            border: 2px dashed rgba(94, 234, 212, 0.3);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        .file-input-label:hover {
+            background: rgba(94, 234, 212, 0.1);
+            border-color: rgba(94, 234, 212, 0.5);
+            color: #5eead4;
+        }
+
+        .file-input-label.has-file {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         button {
-            margin-top: 10px;
-            padding: 10px 15px;
-            background: #38bdf8;
+            flex: 1;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #5eead4 0%, #06b6d4 100%);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
+            color: #020617;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
-            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(94, 234, 212, 0.3);
         }
 
         button:hover {
-            background: #0ea5e9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(94, 234, 212, 0.4);
         }
 
-        img {
-            width: 100%;
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-box {
+            background: rgba(94, 234, 212, 0.05);
+            border: 1px solid rgba(94, 234, 212, 0.1);
             border-radius: 10px;
-            margin-top: 10px;
+            padding: 14px;
+            font-size: 13px;
         }
 
-        pre {
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 10px;
-            overflow-x: auto;
-            max-height: 300px;
+        .metric-label {
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 6px;
         }
 
-        .metric {
-            font-size: 14px;
-            margin-top: 5px;
+        .metric-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #5eead4;
+        }
+
+        .metric-value.status-idle {
             color: #94a3b8;
         }
 
-        .status {
+        .metric-value.status-processing {
+            color: #f59e0b;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .metric-value.status-completed {
             color: #22c55e;
-            font-weight: bold;
+        }
+
+        .metric-value.status-error {
+            color: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .output-image-container {
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        #outputImage {
+            width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        #outputImage.visible {
+            display: block;
+        }
+
+        .json-output {
+            background: #0a0d15;
+            border: 1px solid rgba(94, 234, 212, 0.1);
+            border-radius: 10px;
+            padding: 16px;
+            overflow: auto;
+            max-height: 400px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #86efac;
+        }
+
+        .json-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .json-output::-webkit-scrollbar-track {
+            background: rgba(94, 234, 212, 0.05);
+            border-radius: 10px;
+        }
+
+        .json-output::-webkit-scrollbar-thumb {
+            background: rgba(94, 234, 212, 0.2);
+            border-radius: 10px;
+        }
+
+        .json-output::-webkit-scrollbar-thumb:hover {
+            background: rgba(94, 234, 212, 0.3);
+        }
+
+        .no-data {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid rgba(94, 234, 212, 0.1);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -92,61 +307,131 @@
 <body>
 
 <header>
-    🚀 YOLOv8 Vision Dashboard
+    <div class="header-content">
+        <div class="logo">📦 Smart Inventory</div>
+        <div class="header-title">YOLOv8 Object Detection</div>
+    </div>
 </header>
 
 <div class="container">
+    <div class="grid">
 
-    <!-- LEFT PANEL -->
-    <div class="panel">
-
+        <!-- UPLOAD & DETECTION CARD -->
         <div class="card">
-            <h2>📸 Image Detection</h2>
+            <div class="card-header">
+                <div class="card-icon">📸</div>
+                <h2 class="card-title">Image Detection</h2>
+            </div>
 
-            <input type="file" id="fileInput">
-            <br>
-            <button onclick="detectImage()">Run Detection</button>
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    <label for="fileInput" class="file-input-label" id="fileLabel">
+                        Click to upload or drag image here
+                    </label>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+            </div>
 
-            <div class="metric">Status: <span id="status">Idle</span></div>
-            <div class="metric">Latency: <span id="latency">-</span> ms</div>
+            <div class="button-group">
+                <button onclick="detectImage()" id="detectBtn">Run Detection</button>
+                <button onclick="clearUpload()" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">Clear</button>
+            </div>
 
-            <img id="outputImage">
+            <div class="metrics-row">
+                <div class="metric-box">
+                    <div class="metric-label">Status</div>
+                    <div class="metric-value status-idle" id="status">Idle</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Latency</div>
+                    <div class="metric-value" id="latency">-</div>
+                </div>
+            </div>
 
+            <div class="output-image-container">
+                <img id="outputImage">
+                <div id="placeholderText" style="color: #64748b; text-align: center;">Detection results will appear here</div>
+            </div>
+
+            <div class="metric-box" style="margin: 0;">
+                <div class="metric-label">Objects Detected</div>
+                <div class="metric-value" id="objectCount">0</div>
+            </div>
         </div>
 
+        <!-- JSON OUTPUT CARD -->
         <div class="card">
-            <h2>📊 Detection JSON</h2>
-            <pre id="jsonOutput">No data yet...</pre>
+            <div class="card-header">
+                <div class="card-icon">🔍</div>
+                <h2 class="card-title">Detection Results</h2>
+            </div>
+
+            <div class="json-output" id="jsonOutput">
+                <div class="no-data">No data yet. Upload an image to get started.</div>
+            </div>
         </div>
 
     </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="panel">
-
-        <div class="card">
-            <h2>🎥 Live Stream</h2>
-            <img src="http://localhost:8000/v1/detect/video">
-            <div class="metric">Real-time inference stream</div>
-        </div>
-
-    </div>
-
 </div>
 
+<footer>
+    <p>Smart Inventory Tracking System • Powered by YOLOv8</p>
+</footer>
+
 <script>
+const fileInput = document.getElementById("fileInput");
+const fileLabel = document.getElementById("fileLabel");
+
+fileInput.addEventListener("change", function() {
+    if (fileInput.files[0]) {
+        fileLabel.textContent = fileInput.files[0].name;
+        fileLabel.classList.add("has-file");
+    }
+});
+
+fileLabel.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    fileLabel.style.background = "rgba(94, 234, 212, 0.15)";
+});
+
+fileLabel.addEventListener("dragleave", () => {
+    fileLabel.style.background = "";
+});
+
+fileLabel.addEventListener("drop", (e) => {
+    e.preventDefault();
+    fileLabel.style.background = "";
+    if (e.dataTransfer.files[0]) {
+        fileInput.files = e.dataTransfer.files;
+        fileLabel.textContent = e.dataTransfer.files[0].name;
+        fileLabel.classList.add("has-file");
+    }
+});
+
+function clearUpload() {
+    fileInput.value = "";
+    fileLabel.textContent = "Click to upload or drag image here";
+    fileLabel.classList.remove("has-file");
+    document.getElementById("outputImage").classList.remove("visible");
+    document.getElementById("placeholderText").style.display = "block";
+}
+
 async function detectImage() {
-    const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
 
     if (!file) {
-        alert("Please select an image");
+        alert("Please select an image first");
         return;
     }
 
-    document.getElementById("status").textContent = "Processing...";
-    const start = performance.now();
+    const statusEl = document.getElementById("status");
+    const detectBtn = document.getElementById("detectBtn");
+    
+    statusEl.textContent = "Processing...";
+    statusEl.className = "metric-value status-processing";
+    detectBtn.disabled = true;
 
+    const start = performance.now();
     const formData = new FormData();
     formData.append("file", file);
 
@@ -157,9 +442,14 @@ async function detectImage() {
             body: formData
         });
 
+        if (!imageResponse.ok) throw new Error("Image detection failed");
+
         const imageBlob = await imageResponse.blob();
-        document.getElementById("outputImage").src =
-            URL.createObjectURL(imageBlob);
+        const imageUrl = URL.createObjectURL(imageBlob);
+        const imgEl = document.getElementById("outputImage");
+        imgEl.src = imageUrl;
+        imgEl.classList.add("visible");
+        document.getElementById("placeholderText").style.display = "none";
 
         // JSON RESULT
         const jsonResponse = await fetch("http://localhost:8000/v1/detect", {
@@ -167,18 +457,26 @@ async function detectImage() {
             body: formData
         });
 
+        if (!jsonResponse.ok) throw new Error("JSON detection failed");
+
         const jsonData = await jsonResponse.json();
+        
+        document.getElementById("jsonOutput").textContent = JSON.stringify(jsonData, null, 2);
+        document.getElementById("objectCount").textContent = jsonData.total_objects || 0;
 
-        document.getElementById("jsonOutput").textContent =
-            JSON.stringify(jsonData, null, 2);
-
-        const latency = performance.now() - start;
-        document.getElementById("latency").textContent = latency.toFixed(1);
-        document.getElementById("status").textContent = "Completed";
+        const latency = (performance.now() - start).toFixed(1);
+        document.getElementById("latency").textContent = latency + " ms";
+        
+        statusEl.textContent = "Completed";
+        statusEl.className = "metric-value status-completed";
 
     } catch (err) {
-        document.getElementById("status").textContent = "Error";
+        statusEl.textContent = "Error";
+        statusEl.className = "metric-value status-error";
+        document.getElementById("jsonOutput").textContent = "Error: " + err.message;
         console.error(err);
+    } finally {
+        detectBtn.disabled = false;
     }
 }
 </script>
