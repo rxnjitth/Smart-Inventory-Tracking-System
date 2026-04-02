@@ -54,7 +54,7 @@ http://127.0.0.1:8000
 
 ### GET /
 
-Health/status endpoint.
+Health/status end point.
 
 Example response:
 
