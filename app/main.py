@@ -25,7 +25,6 @@ app.include_router(router)
 # ✅ Serve static files (important)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 🚀 Root → UI
 @app.get("/")
 def serve_ui():
     return FileResponse("static/index.html")
