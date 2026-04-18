@@ -3,9 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Inventory Tracking - YOLOv8 Detection</title>
-
+    <title>Smart Inventory Tracking | Visual Detection Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #f3f1ea;
+            --bg-accent: #f7cf68;
+            --panel: #ffffff;
+            --text: #1f2933;
+            --muted: #64707d;
+            --line: #dde2e7;
+            --brand: #0e8f7a;
+            --brand-deep: #006d5e;
+            --warn: #c06a22;
+            --ok: #107a45;
+            --error: #bf2f2f;
+            --shadow: 0 20px 50px rgba(28, 32, 36, 0.12);
+            --radius-xl: 22px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,473 +33,543 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
-            color: #e2e8f0;
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            color: var(--text);
             min-height: 100vh;
+            background:
+                radial-gradient(circle at 80% 10%, rgba(14, 143, 122, 0.14), transparent 45%),
+                radial-gradient(circle at 10% 25%, rgba(247, 207, 104, 0.45), transparent 35%),
+                linear-gradient(165deg, #ece8df 0%, #f3f1ea 48%, #f9f8f3 100%);
         }
 
-        header {
-            background: linear-gradient(135deg, #020617 0%, #0f1729 100%);
-            border-bottom: 1px solid rgba(94, 234, 212, 0.2);
-            padding: 28px 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        .page-wrap {
+            width: min(1220px, 94%);
+            margin: 26px auto;
+            animation: rise-in 560ms ease-out;
         }
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 30px;
+        .topbar {
+            background: linear-gradient(135deg, #1f2933 0%, #273544 100%);
+            color: #f2f5f8;
+            border-radius: var(--radius-xl);
+            padding: 24px 28px;
             display: flex;
-            align-items: center;
-            gap: 16px;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-end;
+            box-shadow: var(--shadow);
         }
 
-        .logo {
-            font-size: 32px;
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+        }
+
+        .headline {
+            font-size: clamp(1.5rem, 2.4vw, 2.2rem);
+            line-height: 1.1;
             font-weight: 700;
-            background: linear-gradient(135deg, #5eead4 0%, #06b6d4 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
         }
 
-        .header-title {
-            font-size: 18px;
-            color: #cbd5e1;
-            font-weight: 500;
+        .subhead {
+            color: #d4dce3;
+            margin-top: 8px;
+            max-width: 620px;
+            font-size: 0.98rem;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 30px;
+        .status-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            min-width: 175px;
+            text-align: right;
         }
 
-        .grid {
+        .status-chip-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #b8c4cf;
+        }
+
+        .status-chip-value {
+            font-weight: 700;
+            margin-top: 4px;
+            color: #ffffff;
+        }
+
+        .content-grid {
+            margin-top: 20px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px;
+            grid-template-columns: 370px 1fr;
+            gap: 20px;
         }
 
-        .card {
-            background: linear-gradient(135deg, #0f1729 0%, #1a2547 100%);
-            border: 1px solid rgba(94, 234, 212, 0.15);
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            padding: 22px;
         }
 
-        .card:hover {
-            border-color: rgba(94, 234, 212, 0.3);
-            box-shadow: 0 12px 48px rgba(94, 234, 212, 0.1);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(94, 234, 212, 0.1);
-        }
-
-        .card-icon {
-            font-size: 28px;
-        }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #5eead4;
-            margin: 0;
-        }
-
-        .upload-section {
-            margin-bottom: 24px;
-        }
-
-        .file-input-wrapper {
-            position: relative;
+        .panel h2 {
+            font-size: 1.06rem;
             margin-bottom: 16px;
         }
 
-        .file-input-label {
-            display: block;
-            padding: 16px;
-            background: rgba(94, 234, 212, 0.05);
-            border: 2px dashed rgba(94, 234, 212, 0.3);
-            border-radius: 12px;
+        .upload-area {
+            border: 2px dashed #c3d5d1;
+            border-radius: var(--radius-lg);
+            padding: 22px 16px;
             text-align: center;
+            background: linear-gradient(135deg, #f9fcfb 0%, #f4f9f8 100%);
+            transition: all 0.25s ease;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-            color: #cbd5e1;
         }
 
-        .file-input-label:hover {
-            background: rgba(94, 234, 212, 0.1);
-            border-color: rgba(94, 234, 212, 0.5);
-            color: #5eead4;
-        }
-
-        .file-input-label.has-file {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: rgba(34, 197, 94, 0.3);
-            color: #86efac;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #5eead4 0%, #06b6d4 100%);
-            border: none;
-            border-radius: 10px;
-            color: #020617;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(94, 234, 212, 0.3);
-        }
-
-        button:hover {
+        .upload-area.drag-over {
+            border-color: var(--brand);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(94, 234, 212, 0.4);
+            box-shadow: 0 14px 24px rgba(14, 143, 122, 0.16);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .metrics-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .metric-box {
-            background: rgba(94, 234, 212, 0.05);
-            border: 1px solid rgba(94, 234, 212, 0.1);
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 13px;
-        }
-
-        .metric-label {
-            color: #94a3b8;
-            font-weight: 500;
+        .upload-title {
+            font-weight: 600;
+            color: #173b38;
             margin-bottom: 6px;
         }
 
-        .metric-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #5eead4;
+        .upload-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
         }
 
-        .metric-value.status-idle {
-            color: #94a3b8;
+        #fileInput {
+            display: none;
         }
 
-        .metric-value.status-processing {
-            color: #f59e0b;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .metric-value.status-completed {
-            color: #22c55e;
-        }
-
-        .metric-value.status-error {
-            color: #ef4444;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        .output-image-container {
-            border-radius: 12px;
+        .filename {
+            margin-top: 10px;
+            background: #eff5f3;
+            border: 1px solid #dce8e4;
+            color: #1a4b44;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
             overflow: hidden;
-            background: rgba(0, 0, 0, 0.2);
-            min-height: 200px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .button-row {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.62;
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+            box-shadow: 0 10px 20px rgba(0, 109, 94, 0.25);
+        }
+
+        .btn-secondary {
+            color: #24323f;
+            background: #eef2f5;
+            border: 1px solid #d5dde5;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .metric-grid {
+            margin-top: 18px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fafbfc;
+        }
+
+        .metric-key {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .metric-value {
+            font-weight: 700;
+        }
+
+        .status-idle { color: #4f5f6e; }
+        .status-processing { color: var(--warn); animation: blink 1.1s linear infinite; }
+        .status-completed { color: var(--ok); }
+        .status-error { color: var(--error); }
+
+        .result-panel {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 420px;
+        }
+
+        .image-frame {
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--line);
+            background: linear-gradient(135deg, #f8faf9 0%, #f4f5f8 100%);
+            min-height: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 24px;
+            overflow: hidden;
         }
 
         #outputImage {
-            width: 100%;
-            height: auto;
+            max-width: 100%;
+            max-height: 580px;
             display: none;
+            object-fit: contain;
         }
 
         #outputImage.visible {
             display: block;
         }
 
-        .json-output {
-            background: #0a0d15;
-            border: 1px solid rgba(94, 234, 212, 0.1);
-            border-radius: 10px;
-            padding: 16px;
-            overflow: auto;
-            max-height: 400px;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #86efac;
-        }
-
-        .json-output::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .json-output::-webkit-scrollbar-track {
-            background: rgba(94, 234, 212, 0.05);
-            border-radius: 10px;
-        }
-
-        .json-output::-webkit-scrollbar-thumb {
-            background: rgba(94, 234, 212, 0.2);
-            border-radius: 10px;
-        }
-
-        .json-output::-webkit-scrollbar-thumb:hover {
-            background: rgba(94, 234, 212, 0.3);
-        }
-
-        .no-data {
+        .placeholder {
             text-align: center;
-            color: #64748b;
-            font-style: italic;
-        }
-
-        footer {
-            text-align: center;
+            color: #7a8792;
             padding: 20px;
-            color: #64748b;
-            font-size: 12px;
-            border-top: 1px solid rgba(94, 234, 212, 0.1);
-            margin-top: 40px;
         }
 
-        @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
+        .results-panel {
+            margin-top: 20px;
+        }
 
-            .header-content {
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mono {
+            font-family: "IBM Plex Mono", "Consolas", monospace;
+        }
+
+        .json-output {
+            background: #1f2933;
+            color: #dbe7f0;
+            border-radius: 14px;
+            border: 1px solid #344150;
+            padding: 14px;
+            min-height: 220px;
+            max-height: 360px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        .footnote {
+            margin: 16px 0 6px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6e7c88;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.45; }
+        }
+
+        @keyframes rise-in {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 980px) {
+            .topbar {
                 flex-direction: column;
-                text-align: center;
+                align-items: flex-start;
             }
 
-            .metrics-row {
+            .status-chip {
+                text-align: left;
+                width: 100%;
+            }
+
+            .content-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .result-panel {
+                min-height: 360px;
+            }
+
+            .image-frame {
+                min-height: 260px;
             }
         }
     </style>
 </head>
-
 <body>
-
-<header>
-    <div class="header-content">
-        <div class="logo">📦 Smart Inventory</div>
-        <div class="header-title">YOLOv8 Object Detection</div>
-    </div>
-</header>
-
-<div class="container">
-    <div class="grid">
-
-        <!-- UPLOAD & DETECTION CARD -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">📸</div>
-                <h2 class="card-title">Image Detection</h2>
-            </div>
-
-            <div class="upload-section">
-                <div class="file-input-wrapper">
-                    <label for="fileInput" class="file-input-label" id="fileLabel">
-                        Click to upload or drag image here
-                    </label>
-                    <input type="file" id="fileInput" accept="image/*">
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button onclick="detectImage()" id="detectBtn">Run Detection</button>
-                <button onclick="clearUpload()" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">Clear</button>
-            </div>
-
-            <div class="metrics-row">
-                <div class="metric-box">
-                    <div class="metric-label">Status</div>
-                    <div class="metric-value status-idle" id="status">Idle</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">Latency</div>
-                    <div class="metric-value" id="latency">-</div>
-                </div>
-            </div>
-
-            <div class="output-image-container">
-                <img id="outputImage">
-                <div id="placeholderText" style="color: #64748b; text-align: center;">Detection results will appear here</div>
-            </div>
-
-            <div class="metric-box" style="margin: 0;">
-                <div class="metric-label">Objects Detected</div>
-                <div class="metric-value" id="objectCount">0</div>
-            </div>
+<main class="page-wrap">
+    <section class="topbar">
+        <div>
+            <div class="eyebrow">Smart Inventory Tracking</div>
+            <h1 class="headline">Visual Detection Console</h1>
+            <p class="subhead">Upload warehouse or shelf images and run YOLOv8 inference to get annotated previews, object counts, and structured detection data.</p>
         </div>
-
-        <!-- JSON OUTPUT CARD -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">🔍</div>
-                <h2 class="card-title">Detection Results</h2>
-            </div>
-
-            <div class="json-output" id="jsonOutput">
-                <div class="no-data">No data yet. Upload an image to get started.</div>
-            </div>
+        <div class="status-chip">
+            <div class="status-chip-label">System Status</div>
+            <div class="status-chip-value" id="chipStatus">Ready</div>
         </div>
+    </section>
 
-    </div>
-</div>
+    <section class="content-grid">
+        <aside class="panel">
+            <h2>Upload & Run</h2>
 
-<footer>
-    <p>Smart Inventory Tracking System • Powered by YOLOv8</p>
-</footer>
+            <label class="upload-area" id="uploadArea" for="fileInput">
+                <div class="upload-title">Drop image here or click to browse</div>
+                <div class="upload-subtitle">Supports common formats like JPG, PNG, and WEBP</div>
+                <div class="filename" id="fileName">No file selected</div>
+            </label>
+            <input type="file" id="fileInput" accept="image/*">
+
+            <div class="button-row">
+                <button type="button" class="btn-primary" id="detectBtn">Run Detection</button>
+                <button type="button" class="btn-secondary" id="clearBtn">Clear</button>
+            </div>
+
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <span class="metric-key">Status</span>
+                    <span class="metric-value status-idle" id="status">Idle</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-key">Latency</span>
+                    <span class="metric-value" id="latency">-</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-key">Objects Detected</span>
+                    <span class="metric-value" id="objectCount">0</span>
+                </div>
+            </div>
+        </aside>
+
+        <section class="panel result-panel">
+            <h2>Annotated Output</h2>
+
+            <div class="image-frame">
+                <img id="outputImage" alt="Detected inventory objects">
+                <div class="placeholder" id="placeholderText">Detection preview will appear here after processing</div>
+            </div>
+
+            <div class="results-panel">
+                <div class="results-header">
+                    <h2>Detection Payload</h2>
+                    <span class="mono" id="resultMeta">Awaiting request</span>
+                </div>
+                <pre class="json-output mono" id="jsonOutput">No data yet. Upload an image to get started.</pre>
+            </div>
+        </section>
+    </section>
+
+    <p class="footnote">Smart Inventory Tracking System | Powered by YOLOv8</p>
+</main>
 
 <script>
+const API_BASE = window.location.origin;
+
 const fileInput = document.getElementById("fileInput");
-const fileLabel = document.getElementById("fileLabel");
+const uploadArea = document.getElementById("uploadArea");
+const fileName = document.getElementById("fileName");
+const detectBtn = document.getElementById("detectBtn");
+const clearBtn = document.getElementById("clearBtn");
 
-fileInput.addEventListener("change", function() {
-    if (fileInput.files[0]) {
-        fileLabel.textContent = fileInput.files[0].name;
-        fileLabel.classList.add("has-file");
-    }
-});
+const statusEl = document.getElementById("status");
+const chipStatus = document.getElementById("chipStatus");
+const latencyEl = document.getElementById("latency");
+const objectCountEl = document.getElementById("objectCount");
+const outputImage = document.getElementById("outputImage");
+const placeholderText = document.getElementById("placeholderText");
+const jsonOutput = document.getElementById("jsonOutput");
+const resultMeta = document.getElementById("resultMeta");
 
-fileLabel.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    fileLabel.style.background = "rgba(94, 234, 212, 0.15)";
-});
+let currentImageUrl = null;
 
-fileLabel.addEventListener("dragleave", () => {
-    fileLabel.style.background = "";
-});
-
-fileLabel.addEventListener("drop", (e) => {
-    e.preventDefault();
-    fileLabel.style.background = "";
-    if (e.dataTransfer.files[0]) {
-        fileInput.files = e.dataTransfer.files;
-        fileLabel.textContent = e.dataTransfer.files[0].name;
-        fileLabel.classList.add("has-file");
-    }
-});
-
-function clearUpload() {
-    fileInput.value = "";
-    fileLabel.textContent = "Click to upload or drag image here";
-    fileLabel.classList.remove("has-file");
-    document.getElementById("outputImage").classList.remove("visible");
-    document.getElementById("placeholderText").style.display = "block";
+function setStatus(state, label) {
+    statusEl.textContent = label;
+    chipStatus.textContent = label;
+    statusEl.className = `metric-value ${state}`;
 }
 
-async function detectImage() {
-    const file = fileInput.files[0];
+function resetImagePreview() {
+    if (currentImageUrl) {
+        URL.revokeObjectURL(currentImageUrl);
+        currentImageUrl = null;
+    }
+
+    outputImage.src = "";
+    outputImage.classList.remove("visible");
+    placeholderText.style.display = "block";
+}
+
+function resetResults() {
+    setStatus("status-idle", "Idle");
+    latencyEl.textContent = "-";
+    objectCountEl.textContent = "0";
+    resultMeta.textContent = "Awaiting request";
+    jsonOutput.textContent = "No data yet. Upload an image to get started.";
+    resetImagePreview();
+}
+
+function updateFileName(file) {
+    fileName.textContent = file ? file.name : "No file selected";
+}
+
+function getSelectedFile() {
+    return fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+}
+
+fileInput.addEventListener("change", () => {
+    updateFileName(getSelectedFile());
+});
+
+["dragover", "dragenter"].forEach((eventName) => {
+    uploadArea.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        uploadArea.classList.add("drag-over");
+    });
+});
+
+["dragleave", "dragend", "drop"].forEach((eventName) => {
+    uploadArea.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        uploadArea.classList.remove("drag-over");
+    });
+});
+
+uploadArea.addEventListener("drop", (event) => {
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+        fileInput.files = event.dataTransfer.files;
+        updateFileName(getSelectedFile());
+    }
+});
+
+clearBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    updateFileName(null);
+    resetResults();
+});
+
+detectBtn.addEventListener("click", async () => {
+    const file = getSelectedFile();
 
     if (!file) {
-        alert("Please select an image first");
+        alert("Please select an image before running detection.");
         return;
     }
 
-    const statusEl = document.getElementById("status");
-    const detectBtn = document.getElementById("detectBtn");
-    
-    statusEl.textContent = "Processing...";
-    statusEl.className = "metric-value status-processing";
     detectBtn.disabled = true;
-
+    setStatus("status-processing", "Processing");
+    resultMeta.textContent = "Submitting image...";
     const start = performance.now();
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-        // IMAGE RESULT
-        const imageResponse = await fetch("http://localhost:8000/v1/detect/image", {
+        const imageFormData = new FormData();
+        imageFormData.append("file", file);
+
+        const imageResponse = await fetch(`${API_BASE}/v1/detect/image`, {
             method: "POST",
-            body: formData
+            body: imageFormData
         });
 
-        if (!imageResponse.ok) throw new Error("Image detection failed");
+        if (!imageResponse.ok) {
+            throw new Error(`Image endpoint failed (${imageResponse.status})`);
+        }
 
         const imageBlob = await imageResponse.blob();
-        const imageUrl = URL.createObjectURL(imageBlob);
-        const imgEl = document.getElementById("outputImage");
-        imgEl.src = imageUrl;
-        imgEl.classList.add("visible");
-        document.getElementById("placeholderText").style.display = "none";
+        resetImagePreview();
+        currentImageUrl = URL.createObjectURL(imageBlob);
+        outputImage.src = currentImageUrl;
+        outputImage.classList.add("visible");
+        placeholderText.style.display = "none";
 
-        // JSON RESULT
-        const jsonResponse = await fetch("http://localhost:8000/v1/detect", {
+        resultMeta.textContent = "Fetching JSON payload...";
+
+        const jsonFormData = new FormData();
+        jsonFormData.append("file", file);
+
+        const jsonResponse = await fetch(`${API_BASE}/v1/detect`, {
             method: "POST",
-            body: formData
+            body: jsonFormData
         });
 
-        if (!jsonResponse.ok) throw new Error("JSON detection failed");
+        if (!jsonResponse.ok) {
+            throw new Error(`JSON endpoint failed (${jsonResponse.status})`);
+        }
 
         const jsonData = await jsonResponse.json();
-        
-        document.getElementById("jsonOutput").textContent = JSON.stringify(jsonData, null, 2);
-        document.getElementById("objectCount").textContent = jsonData.total_objects || 0;
+        jsonOutput.textContent = JSON.stringify(jsonData, null, 2);
+        objectCountEl.textContent = String(jsonData.total_objects || 0);
 
-        const latency = (performance.now() - start).toFixed(1);
-        document.getElementById("latency").textContent = latency + " ms";
-        
-        statusEl.textContent = "Completed";
-        statusEl.className = "metric-value status-completed";
-
-    } catch (err) {
-        statusEl.textContent = "Error";
-        statusEl.className = "metric-value status-error";
-        document.getElementById("jsonOutput").textContent = "Error: " + err.message;
-        console.error(err);
+        const latencyMs = (performance.now() - start).toFixed(1);
+        latencyEl.textContent = `${latencyMs} ms`;
+        resultMeta.textContent = `${file.name} | ${latencyMs} ms`;
+        setStatus("status-completed", "Completed");
+    } catch (error) {
+        setStatus("status-error", "Error");
+        resultMeta.textContent = "Request failed";
+        jsonOutput.textContent = `Error: ${error.message}`;
+        console.error(error);
     } finally {
         detectBtn.disabled = false;
     }
-}
-</script>
+});
 
+resetResults();
+</script>
 </body>
 </html>
